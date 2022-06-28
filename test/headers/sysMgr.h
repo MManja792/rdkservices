@@ -265,3 +265,9 @@ typedef struct _IARM_Bus_SYSMgr_GetSystemStates_Param_t {
 typedef struct _IARM_Bus_SYSMgr_IntrusionData_t{
     char intrusionData[ IARM_BUS_SYSMGR_Intrusion_MaxLen+1 ];   //[in]  intrusion detection data
 } IARM_Bus_SYSMgr_IntrusionData_t;
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

@@ -14,6 +14,7 @@ public:
     virtual IARM_Result_t IARM_Bus_RegisterEventHandler(const char* ownerName, IARM_EventId_t eventId, IARM_EventHandler_t handler) = 0;
     virtual IARM_Result_t IARM_Bus_UnRegisterEventHandler(const char* ownerName, IARM_EventId_t eventId) = 0;
     virtual IARM_Result_t IARM_Bus_Call(const char *ownerName, const char *methodName, void *arg, size_t argLen) = 0;
+    virtual IARM_Result_t IARM_Bus_RegisterCall(const char *methodName, IARM_BusCall_t handler);
 };
 
 class IarmBus {
@@ -53,6 +54,10 @@ public:
     static IARM_Result_t IARM_Bus_Call(const char *ownerName, const char *methodName, void *arg, size_t argLen)
     {
         return getInstance().impl->IARM_Bus_Call(ownerName, methodName, arg, argLen);
+    }
+    static IARM_Result_t IARM_Bus_RegisterCall(const char *methodName, IARM_BusCall_t handler)
+    {
+	return getInstance().impl->IARM_Bus_RegisterCall(methodName,handler);
     }
 
 };
