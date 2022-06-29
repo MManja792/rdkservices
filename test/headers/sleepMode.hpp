@@ -37,9 +37,8 @@
 #define _DS_SLEEPMODE_HPP_
 
 #include "dsConstant.hpp"
-#include "list.hpp"
 #include <string>
-
+template <class T> using List = std::vector<T>;
 namespace device {
 
 /**

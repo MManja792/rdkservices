@@ -168,7 +168,7 @@ typedef struct _IARM_BUS_SYSMgr_EventData_t{
         } data;
 }IARM_Bus_SYSMgr_EventData_t;
 
-
+/*
 typedef struct _propertyValue
 {
   int state;
@@ -191,7 +191,7 @@ typedef struct _IARM_BUS_SYSMgr_EventData_t {
         } usbMountData;
     } data;
 } IARM_Bus_SYSMgr_EventData_t;
-
+*/
 typedef struct _propertyValue
 {
   int state;
