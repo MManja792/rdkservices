@@ -1,7 +1,6 @@
 #pragma once
 
-#include "utils.h"
-//#include "UtilsLogging.h"
+#include "UtilsLogging.h"
 
 namespace Utils {
 //class for std::thread RAII
