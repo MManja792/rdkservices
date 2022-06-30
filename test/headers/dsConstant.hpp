@@ -2,11 +2,10 @@
 #ifndef DSCONSTANTS_HPP_
 #define DSCONSTANTS_HPP_
 
-//#include "enumerable.hpp"
 #include <string>
 namespace device {
 
-	class DSConstant /*: public Enumerable*/ {
+	class DSConstant  {
 		private:
 
 	bool enabled;   //!< Indicates the port or port attributes inheriting this class is enabled or not.
@@ -27,44 +26,33 @@ public:
 
 	DSConstant(const int id, const std::string &name) : enabled(false), _id(id), _name(name){};
 
-
 	virtual ~DSConstant() {};
 
-
+	virtual bool operator==(int id) const{
 		return id == _id;
 	}
-
 
 	virtual int getId() const {
 		return _id;
 	};
 
-
 	virtual const std::string & getName() const {
 		return _name;
 	}
-
 
 	virtual const std::string & toString() const {
 		return _name;
 	}
 
-
 	void enable() {
 		enabled = true;
 	}
-
 
 	bool isEnabled() const{
 		return enabled;
 	}
 
 };
-
 }
-
 #endif /* DSCONSTANT_HPP_ */
 
-
-/** @} */
-/** @} */

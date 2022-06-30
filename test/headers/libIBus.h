@@ -68,3 +68,5 @@ constexpr auto IARM_Bus_IsConnected = &IarmBus::IARM_Bus_IsConnected;
 constexpr auto IARM_Bus_RegisterEventHandler = &IarmBus::IARM_Bus_RegisterEventHandler;
 constexpr auto IARM_Bus_UnRegisterEventHandler = &IarmBus::IARM_Bus_UnRegisterEventHandler;
 constexpr auto IARM_Bus_Call = &IarmBus::IARM_Bus_Call;
+
+constexpr auto IARM_Bus_RegisterCall = &IarmBus::IARM_Bus_RegisterCall;
