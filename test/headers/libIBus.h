@@ -3,7 +3,7 @@
 #include "libIARM.h"
 
 typedef void (*IARM_EventHandler_t)(const char* owner, IARM_EventId_t eventId, void* data, size_t len);
-
+typedef IARM_Result_t (*IARM_BusCall_t) (void *arg);
 class IarmBusImpl {
 public:
     virtual ~IarmBusImpl() = default;

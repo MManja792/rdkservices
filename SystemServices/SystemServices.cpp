@@ -3049,7 +3049,7 @@ namespace WPEFramework {
 
                         memset(&rfcParam, 0, sizeof(rfcParam));
 			char sysServices[] = "SystemServices";
-                        wdmpStatus = getRFCParameter(sysServices.c_str(), jsonRFCList[i].String().c_str(), &rfcParam);
+                        wdmpStatus = getRFCParameter(sysServices, jsonRFCList[i].String().c_str(), &rfcParam);
                         if(WDMP_SUCCESS == wdmpStatus || WDMP_ERR_DEFAULT_VALUE == wdmpStatus)
                             cmdResponse = rfcParam.value;
                         else
