@@ -17,3 +17,21 @@ typedef enum _IARM_Result_t
 
 #define IARM_METHOD_IPC_TIMEOUT_DEFAULT    (-1)
 #define IARM_METHOD_IPC_TIMEOUT_INFINITE   ((int) 0x7fffffff)
+
+
+typedef enum _IARM_Bus_Daemon_PowerState_t {
+    IARM_BUS_PWRMGR_POWERSTATE_OFF, /*!< Used for both IARM Bus Daemon Power pre change and Power manager Power state OFF */
+    IARM_BUS_PWRMGR_POWERSTATE_STANDBY, /*!< Used for both IARM Bus Daemon Power pre change and Power manager Power state STANDBY */
+    IARM_BUS_PWRMGR_POWERSTATE_ON,  /*!< Used for both IARM Bus Daemon Power pre change and Power manager Power state ON */
+    IARM_BUS_PWRMGR_POWERSTATE_STANDBY_LIGHT_SLEEP, /*!< Used for both IARM Bus Daemon Power pre change and Power manager Power state set/get */
+    IARM_BUS_PWRMGR_POWERSTATE_STANDBY_DEEP_SLEEP   /*!< Used for both IARM Bus Daemon Power pre change and Power manager Power state set/get */
+} IARM_Bus_PowerState_t;
+
+
+typedef IARM_Bus_PowerState_t IARM_Bus_PWRMgr_PowerState_t;
+
+typedef enum _IARM_Bus_Daemon_SysMode_t{
+    IARM_BUS_SYS_MODE_NORMAL,
+    IARM_BUS_SYS_MODE_EAS,
+    IARM_BUS_SYS_MODE_WAREHOUSE
+} IARM_Bus_Daemon_SysMode_t;
