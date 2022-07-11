@@ -2,6 +2,7 @@
 
 #define IARM_BUS_NAME "com.comcast.rdk.iarm.bus"
 #define IARM_MAX_NAME_LEN 64
+#define IARM_BUS_COMMON_API_SysModeChange "SysModeChange"
 
 typedef int IARM_EventId_t;
 

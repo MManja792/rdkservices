@@ -2,12 +2,7 @@
 
 #define IARM_BUS_SYSMGR_NAME "SYSMgr"
 #define IARM_BUS_SYSMGR_API_GetSystemStates     "GetSystemStates"
-
-typedef enum _SYSMgr_EventId_t {
-    IARM_BUS_SYSMGR_EVENT_USB_MOUNT_CHANGED,
-    IARM_BUS_SYSMGR_EVENT_MAX
-} IARM_Bus_SYSMgr_EventId_t;
-
+/*
 typedef struct _IARM_BUS_SYSMgr_EventData_t {
     union {
         struct _USB_MOUNT {
@@ -17,7 +12,7 @@ typedef struct _IARM_BUS_SYSMgr_EventData_t {
         } usbMountData;
     } data;
 } IARM_Bus_SYSMgr_EventData_t;
-
+*/
 typedef enum _SYSMgr_SystemState_t {
   IARM_BUS_SYSMGR_SYSSTATE_CHANNELMAP, //0
   IARM_BUS_SYSMGR_SYSSTATE_DISCONNECTMGR,//1
@@ -130,7 +125,7 @@ typedef struct _IARM_Bus_SYSMgr_GetSystemStates_Param_t {
   state_property qam_ready_status;
   state_property firmware_update_state;
 } IARM_Bus_SYSMgr_GetSystemStates_Param_t;
-/*
+
 typedef struct _IARM_BUS_SYSMgr_EventData_t{
         union {
                 struct _CARD_FWDNLD_DATA {
@@ -170,7 +165,7 @@ typedef struct _IARM_BUS_SYSMgr_EventData_t{
 
         } data;
 }IARM_Bus_SYSMgr_EventData_t;
-*/
+
 
 typedef enum _SYSMgr_EventId_t {
     IARM_BUS_SYSMGR_EVENT_SYSTEMSTATE,
