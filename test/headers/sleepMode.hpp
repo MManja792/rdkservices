@@ -6,7 +6,7 @@ namespace device {
 template <class T>
 using List = std::vector<T>;
 
-
+/*
 class DSConstant  {
 	private:
 
@@ -23,8 +23,8 @@ public:
 
 };
 
-
-class SleepMode : public DSConstant {
+*/
+class SleepMode {
 
 public:
         static const int kLightSleep;  //!< Indicates light sleep mode.
