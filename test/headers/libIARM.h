@@ -6,6 +6,8 @@
 
 typedef int IARM_EventId_t;
 
+
+
 typedef enum _IARM_Result_t
 {
   IARM_RESULT_SUCCESS,  
@@ -15,6 +17,7 @@ typedef enum _IARM_Result_t
   IARM_RESULT_OOM,
 
 } IARM_Result_t;
+typedef IARM_Result_t (*IARM_BusCall_t) (void *arg);
 
 #define IARM_METHOD_IPC_TIMEOUT_DEFAULT    (-1)
 #define IARM_METHOD_IPC_TIMEOUT_INFINITE   ((int) 0x7fffffff)

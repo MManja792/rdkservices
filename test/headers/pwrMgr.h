@@ -10,6 +10,7 @@
 
 #define IARM_BUS_PWRMGR_API_SetNetworkStandbyMode  "SetNetworkStandbyMode"
 #define IARM_BUS_PWRMGR_API_GetNetworkStandbyMode  "GetNetworkStandbyMode"
+#define IARM_BUS_PWRMGR_API_Reboot "performReboot"
 
 typedef struct _IARM_Bus_PWRMgr_NetworkStandbyMode_Param_t {
        bool bStandbyMode;        /*!< Standby mode to set and get*/
