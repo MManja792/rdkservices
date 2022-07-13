@@ -35,7 +35,7 @@ public:
         static SleepMode & getInstance(const std::string &name);
         List<SleepMode> getSleepModes();
         SleepMode(int id);
-	std::string toString();
+	//string toString();
         virtual ~SleepMode();
 
 };

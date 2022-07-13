@@ -1416,9 +1416,10 @@ namespace WPEFramework {
                 {
                     _fwUpdate.httpStatus = std::stoi(httpCodeStr);
                 }
-                catch(const std::exception& e)
+                //catch(exception& e)
+		catch(...)
                 {
-                    LOGERR("exception in converting xconf http code %s", e.what());
+                    LOGERR("exception in converting xconf http code");
                 }
             }
 
@@ -1483,9 +1484,10 @@ namespace WPEFramework {
                 response["asyncResponse"] = true;
                 returnResponse(true);
             }
-            catch(const std::system_error& e)
+            //catch(system_error& e)
+	    catch(...)
             {
-                LOGERR("exception in getFirmwareUpdateInfo %s", e.what());
+                LOGERR("exception in getFirmwareUpdateInfo ");
                 response["asyncResponse"] = false;
                 returnResponse(false);
             }
@@ -2141,9 +2143,10 @@ namespace WPEFramework {
                     response["asyncResponse"] = true;
                     status = true;
                 }
-                catch(const std::system_error& e)
+                //catch(system_error& e)
+		catch(...)
                 {
-                    LOGERR("exception in getFirmwareUpdateInfo %s", e.what());
+                    LOGERR("exception in getFirmwareUpdateInfo");
                     response["asyncResponse"] = false;
                     status = false;
                 }
@@ -3802,7 +3805,7 @@ namespace WPEFramework {
         {
             int seconds = 600; /* 10 Minutes to Reboot */
 
-            LOGINFO("len = %d\n", len);
+            LOGINFO("len = %ld\n", len);
             /* Only handle state events */
             if (eventId != IARM_BUS_SYSMGR_EVENT_SYSTEMSTATE) return;
 
