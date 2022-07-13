@@ -1416,10 +1416,9 @@ namespace WPEFramework {
                 {
                     _fwUpdate.httpStatus = std::stoi(httpCodeStr);
                 }
-                //catch(exception& e)
-		catch(...)
+                catch(exception& e)
                 {
-                    LOGERR("exception in converting xconf http code");
+                    LOGERR("exception in converting xconf http code %s",e.what());
                 }
             }
 
@@ -1484,10 +1483,9 @@ namespace WPEFramework {
                 response["asyncResponse"] = true;
                 returnResponse(true);
             }
-            //catch(system_error& e)
-	    catch(...)
+            catch(system_error& e)
             {
-                LOGERR("exception in getFirmwareUpdateInfo ");
+                LOGERR("exception in getFirmwareUpdateInfo %s", e.what());
                 response["asyncResponse"] = false;
                 returnResponse(false);
             }
@@ -1642,7 +1640,7 @@ namespace WPEFramework {
         {
             bool status = false;
             try {
-                const device::SleepMode &mode = device::Host::getInstance().getPreferredSleepMode();
+                device::SleepMode mode = device::Host::getInstance().getPreferredSleepMode();
                 std::string preferredStandbyMode = mode.toString();
                 response["preferredStandbyMode"] = preferredStandbyMode;
                 status = true;
@@ -1775,7 +1773,7 @@ namespace WPEFramework {
             bool status = false;
             JsonArray standbyModes;
             try {
-                const device::List<device::SleepMode> sleepModes =
+                device::List<device::SleepMode> sleepModes =
                     device::Host::getInstance().getAvailableSleepModes();
                 for (unsigned int i = 0; i < sleepModes.size(); i++) {
                     standbyModes.Add(sleepModes.at(i).toString());
@@ -2143,10 +2141,9 @@ namespace WPEFramework {
                     response["asyncResponse"] = true;
                     status = true;
                 }
-                //catch(system_error& e)
-		catch(...)
+                catch(system_error& e)
                 {
-                    LOGERR("exception in getFirmwareUpdateInfo");
+                    LOGERR("exception in getFirmwareUpdateInfo %s",e.what());
                     response["asyncResponse"] = false;
                     status = false;
                 }
@@ -3805,7 +3802,7 @@ namespace WPEFramework {
         {
             int seconds = 600; /* 10 Minutes to Reboot */
 
-            LOGINFO("len = %ld\n", len);
+            LOGINFO("len = %lud\n", len);
             /* Only handle state events */
             if (eventId != IARM_BUS_SYSMGR_EVENT_SYSTEMSTATE) return;
 
