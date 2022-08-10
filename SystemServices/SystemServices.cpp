@@ -305,7 +305,7 @@ namespace WPEFramework {
                 LOGINFO("first boot so setting mode to '%s' ('%s' does not contain(\"mode\"))\n",
                         (param["mode"].String()).c_str(), SYSTEM_SERVICE_TEMP_FILE);
 
-                setMode(mode, response);
+                //setMode(mode, response);
             } else if (m_currentMode.empty()) {
                 JsonObject mode,param,response;
                 param["duration"] = m_temp_settings.getValue("mode_duration");
@@ -315,7 +315,7 @@ namespace WPEFramework {
                 LOGINFO("receiver restarted so setting mode:%s duration:%d\n",
                         (param["mode"].String()).c_str(), (int)param["duration"].Number());
 
-                setMode(mode, response);
+                //setMode(mode, response);
             }
 
             SystemServices::m_FwUpdateState_LatestEvent=FirmwareUpdateStateUninitialized;
