@@ -466,7 +466,7 @@ namespace WPEFramework {
             GetHandler(2)->Register<JsonObject, JsonObject>("deletePersistentPath", &SystemServices::deletePersistentPath, this);
             GetHandler(2)->Register<JsonObject, PlatformCaps>("getPlatformConfiguration",
                 &SystemServices::getPlatformConfiguration, this);
-
+#ifndef ENABLE_GTEST
             {
                 RFC_ParamData_t param = {0};
                 WDMP_STATUS status = getRFCParameter(NULL, RFC_PWRMGR2, &param);
@@ -475,6 +475,7 @@ namespace WPEFramework {
                     m_isPwrMgr2RFCEnabled = true;
                 }
             }
+#endif
         }
 
 

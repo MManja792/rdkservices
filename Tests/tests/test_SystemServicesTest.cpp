@@ -67,11 +67,11 @@ public:
 TEST_F(SystemServicesTest, RegisteredMethods)
 {
 	EXPECT_EQ(Core::ERROR_NONE, handler.Exists(_T("requestSystemUptime")));
-	EXPECT_EQ(Core::ERROR_NONE, handler.Exists(_T("fireFirmwarePendingReboot")));
-	EXPECT_EQ(Core::ERROR_NONE, handler.Exists(_T("setFirmwareAutoReboot")));
-	EXPECT_EQ(Core::ERROR_NONE, handler.Exists(_T("setFirmwareRebootDelay")));
+	EXPECT_EQ(Core::ERROR_NONE, handlerV2.Exists(_T("fireFirmwarePendingReboot")));
+	EXPECT_EQ(Core::ERROR_NONE, handlerV2.Exists(_T("setFirmwareAutoReboot")));
+	EXPECT_EQ(Core::ERROR_NONE, handlerV2.Exists(_T("setFirmwareRebootDelay")));
 	EXPECT_EQ(Core::ERROR_NONE, handler.Exists(_T("updateFirmware")));
-	EXPECT_EQ(Core::ERROR_NONE, handler.Exists(_T("getLastFirmwareFailureReason")));
+	EXPECT_EQ(Core::ERROR_NONE, handlerV2.Exists(_T("getLastFirmwareFailureReason")));
 	EXPECT_EQ(Core::ERROR_NONE, handler.Exists(_T("getDownloadedFirmwareInfo")));
 	EXPECT_EQ(Core::ERROR_NONE, handler.Exists(_T("getFirmwareDownloadPercent")));
 	EXPECT_EQ(Core::ERROR_NONE, handler.Exists(_T("getFirmwareUpdateState")));
@@ -111,7 +111,7 @@ TEST_F(SystemServicesTest, PendingReboot)
 		return WDMP_SUCCESS;
 	}));
 	
-	EXPECT_EQ(Core::ERROR_NONE, handler.Invoke(connection, _T("fireFirmwarePendingReboot"), _T("{}"),response));
+	EXPECT_EQ(Core::ERROR_NONE, handlerV2.Invoke(connection, _T("fireFirmwarePendingReboot"), _T("{}"),response));
 	EXPECT_EQ(response,string("{\"success\":true}"));
 }
 
@@ -127,7 +127,7 @@ TEST_F(SystemServicesTest, AutoReboot)
                 return WDMP_SUCCESS;
         }));
 
-        EXPECT_EQ(Core::ERROR_NONE, handler.Invoke(connection, _T("setFirmwareAutoReboot"), _T("{\"enable\":true}"),response));
+        EXPECT_EQ(Core::ERROR_NONE, handlerV2.Invoke(connection, _T("setFirmwareAutoReboot"), _T("{\"enable\":true}"),response));
         EXPECT_EQ(response,string("{\"success\":true}"));
 }
 
@@ -142,7 +142,7 @@ TEST_F(SystemServicesTest, RebootDelay)
                 return WDMP_SUCCESS;
         }));
 
-    EXPECT_EQ(Core::ERROR_NONE, handler.Invoke(connection, _T("setFirmwareRebootDelay"), _T("{\"delaySeconds\":10}"),response));
+    EXPECT_EQ(Core::ERROR_NONE, handlerV2.Invoke(connection, _T("setFirmwareRebootDelay"), _T("{\"delaySeconds\":10}"),response));
     EXPECT_EQ(response,string("{\"success\":true}"));
 }
 
@@ -151,11 +151,11 @@ TEST_F(SystemServicesTest, Firmware)
 	EXPECT_EQ(Core::ERROR_NONE, handler.Invoke(connection, _T("updateFirmware"), _T("{}"),response));
     EXPECT_EQ(response,string("{\"success\":true}"));
 	
-    EXPECT_EQ(Core::ERROR_NONE, handler.Invoke(connection, _T("getLastFirmwareFailureReason"), _T("{}"),response));
+    EXPECT_EQ(Core::ERROR_NONE, handlerV2.Invoke(connection, _T("getLastFirmwareFailureReason"), _T("{}"),response));
     EXPECT_EQ(response,string("{\"failReason\":\"None\",\"success\":true}"));
 
 	EXPECT_EQ(Core::ERROR_NONE, handler.Invoke(connection, _T("getDownloadedFirmwareInfo"), _T("{}"),response));
-    EXPECT_EQ(response,string("{\"currentFWVersion\":\"\",\"downloadedFWVersion\":\"\",\"downloadedFWLocation\":\"\",\"isRebootDeferred\":false,\"success\":true}"));
+    EXPECT_EQ(response,string("{\"currentFWVersion\":\"AX013AN_5.6p4s1_VBN_sey\",\"downloadedFWVersion\":\"\",\"downloadedFWLocation\":\"\",\"isRebootDeferred\":false,\"success\":true}"));
 
 	EXPECT_EQ(Core::ERROR_NONE, handler.Invoke(connection, _T("getFirmwareDownloadPercent"), _T("{}"),response));
     EXPECT_EQ(response,string("{\"downloadPercent\":-1,\"success\":true}"));
@@ -171,15 +171,15 @@ TEST_F(SystemServicesTest, Timezone)
 	EXPECT_EQ(response,string("{\"success\":true}"));
 
 	EXPECT_EQ(Core::ERROR_NONE, handler.Invoke(connection, _T("getTimeZoneDST"), _T("{}"),response));
-    EXPECT_EQ(response,string("{\"timeZone\":\"America/New_York\",\"success\":true}"));
+    EXPECT_EQ(response,string("{\"timeZone\":\"America\\/New_York\",\"success\":true}"));
 
 	EXPECT_EQ(Core::ERROR_NONE, handler.Invoke(connection, _T("setTimeZoneDST"), _T("{\"timeZone\":\"America/Costa_Rica\"}"),response));
     EXPECT_EQ(response,string("{\"success\":true}"));
 
     EXPECT_EQ(Core::ERROR_NONE, handler.Invoke(connection, _T("getTimeZoneDST"), _T("{}"),response));
-    EXPECT_EQ(response,string("{\"timeZone\":\"America/Costa_Rica\",\"success\":true}"));
+    EXPECT_EQ(response,string("{\"timeZone\":\"America\\/Costa_Rica\",\"success\":true}"));
 
-	EXPECT_EQ(Core::ERROR_NONE, handler.Invoke(connection, _T("getTimeZones"), _T("{}"),response));
+	EXPECT_EQ(Core::ERROR_NONE, handlerV2.Invoke(connection, _T("getTimeZones"), _T("{}"),response));
 
 	size_t pos = response.length() - 15 ;
     string timeZones = response.substr(pos,response.length());
@@ -190,19 +190,19 @@ TEST_F(SystemServicesTest, Timezone)
 
 TEST_F(SystemServicesTest, InvalidTerritory)
 {
-	EXPECT_EQ(Core::ERROR_NONE, handler.Invoke(connection, _T("setTerritory"), _T("{\"territory\":\"US\",\"region\":\"US-NYC\"}"),response));
+	EXPECT_EQ(Core::ERROR_GENERAL, handler.Invoke(connection, _T("setTerritory"), _T("{\"territory\":\"US\",\"region\":\"US-NYC\"}"),response));
     EXPECT_EQ(response,string("{\"error\":{\"message\":\"Invalid territory\"},\"success\":false}"));
 
-	EXPECT_EQ(Core::ERROR_NONE, handler.Invoke(connection, _T("setTerritory"), _T("{\"territory\":\"USA\",\"region\":\"U-NYC\"}"),response));
+	EXPECT_EQ(Core::ERROR_GENERAL, handler.Invoke(connection, _T("setTerritory"), _T("{\"territory\":\"USA\",\"region\":\"U-NYC\"}"),response));
 	EXPECT_EQ(response,string("{\"error\":{\"message\":\"Invalid region\"},\"success\":false}"));
 
-	EXPECT_EQ(Core::ERROR_NONE, handler.Invoke(connection, _T("setTerritory"), _T("{\"territory\":\"US@\",\"region\":\"US-NYC\"}"),response));
+	EXPECT_EQ(Core::ERROR_GENERAL, handler.Invoke(connection, _T("setTerritory"), _T("{\"territory\":\"US@\",\"region\":\"US-NYC\"}"),response));
     EXPECT_EQ(response,string("{\"error\":{\"message\":\"Invalid territory\"},\"success\":false}"));
 
-	EXPECT_EQ(Core::ERROR_NONE, handler.Invoke(connection, _T("setTerritory"), _T("{\"territory\":\"USA\",\"region\":\"US-N$C\"}"),response));
+	EXPECT_EQ(Core::ERROR_GENERAL, handler.Invoke(connection, _T("setTerritory"), _T("{\"territory\":\"USA\",\"region\":\"US-N$C\"}"),response));
     EXPECT_EQ(response,string("{\"error\":{\"message\":\"Invalid region\"},\"success\":false}"));
 
-	EXPECT_EQ(Core::ERROR_NONE, handler.Invoke(connection, _T("setTerritory"), _T("{\"territory\":\"US12\",\"region\":\"US-NYC\"}"),response));
+	EXPECT_EQ(Core::ERROR_GENERAL, handler.Invoke(connection, _T("setTerritory"), _T("{\"territory\":\"US12\",\"region\":\"US-NYC\"}"),response));
     EXPECT_EQ(response,string("{\"error\":{\"message\":\"Invalid territory\"},\"success\":false}"));
 
 	EXPECT_EQ(Core::ERROR_NONE, handler.Invoke(connection, _T("getTerritory"), _T("{}"),response));
