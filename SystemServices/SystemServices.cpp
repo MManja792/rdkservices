@@ -322,8 +322,9 @@ namespace WPEFramework {
 
                 LOGINFO("first boot so setting mode to '%s' ('%s' does not contain(\"mode\"))\n",
                         (param["mode"].String()).c_str(), SYSTEM_SERVICE_TEMP_FILE);
-
-                //setMode(mode, response);
+#ifndef ENABLE_GTEST
+		        setMode(mode, response);
+#endif
             } else if (m_currentMode.empty()) {
                 JsonObject mode,param,response;
                 param["duration"] = m_temp_settings.getValue("mode_duration");
@@ -332,8 +333,9 @@ namespace WPEFramework {
 
                 LOGINFO("receiver restarted so setting mode:%s duration:%d\n",
                         (param["mode"].String()).c_str(), (int)param["duration"].Number());
-
-                //setMode(mode, response);
+#ifndef ENABLE_GTEST
+                setMode(mode, response);
+#endif
             }
 
             SystemServices::m_FwUpdateState_LatestEvent=FirmwareUpdateStateUninitialized;
@@ -3860,12 +3862,18 @@ namespace WPEFramework {
             int seconds = 600; /* 10 Minutes to Reboot */
 
             LOGINFO("len = %lud\n", len);
+	    	int state = 0;
+	    	IARM_Bus_SYSMgr_SystemState_t stateId;
+	    	IARM_Bus_SYSMgr_EventData_t *sysEventData = nullptr;
             /* Only handle state events */
             if (eventId != IARM_BUS_SYSMGR_EVENT_SYSTEMSTATE) return;
 
-            IARM_Bus_SYSMgr_EventData_t *sysEventData = (IARM_Bus_SYSMgr_EventData_t*)data;
-            IARM_Bus_SYSMgr_SystemState_t stateId = sysEventData->data.systemStates.stateId;
-            int state = sysEventData->data.systemStates.state;
+	    	if(data != nullptr){
+
+            	sysEventData = (IARM_Bus_SYSMgr_EventData_t*)data;
+            	stateId = sysEventData->data.systemStates.stateId;
+             	state = sysEventData->data.systemStates.state;
+	    	}
 
             switch (stateId) {
                 case IARM_BUS_SYSMGR_SYSSTATE_FIRMWARE_UPDATE_STATE:
@@ -3886,6 +3894,7 @@ namespace WPEFramework {
 
                 case IARM_BUS_SYSMGR_SYSSTATE_TIME_SOURCE:
                     {
+			    if(sysEventData != nullptr){
                         if (sysEventData->data.systemStates.state)
                         {
                             LOGWARN("Clock is set.");
@@ -3895,6 +3904,7 @@ namespace WPEFramework {
                                 LOGERR("SystemServices::_instance is NULL.\n");
                             }
                         }
+			    }
                     } break;
 
                 default:
