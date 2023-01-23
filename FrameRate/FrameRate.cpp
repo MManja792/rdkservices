@@ -43,8 +43,8 @@
 //Defines
 #define DEFAULT_FPS_COLLECTION_TIME_IN_MILLISECONDS 10000
 #define MINIMUM_FPS_COLLECTION_TIME_IN_MILLISECONDS 100
-#define DEFAULT_MIN_FPS_VALUE 60
-#define DEFAULT_MAX_FPS_VALUE -1
+#define DEFAULT_MIN_FPS_VALUE -1
+#define DEFAULT_MAX_FPS_VALUE 60
 
 // TODO: remove this
 #define registerMethod(...) for (uint8_t i = 1; GetHandler(i); i++) GetHandler(i)->Register<JsonObject, JsonObject>(__VA_ARGS__)
@@ -102,7 +102,7 @@ namespace WPEFramework
 
 	const string FrameRate::Initialize(PluginHost::IShell * /* service */)
         {
-		InitializeIARM();
+		    InitializeIARM();
                 return "";
         }
 
@@ -144,7 +144,7 @@ namespace WPEFramework
             std::lock_guard<std::mutex> guard(m_callMutex);
 
             LOGINFOMETHOD();
-	    bool retValue = false;
+	        bool retValue = false;
 	    try{
 		    if (parameters.HasLabel("frequency"))
 		    {
