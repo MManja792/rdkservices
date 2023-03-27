@@ -572,7 +572,7 @@ namespace WPEFramework {
             m_service->AddRef();
 
 #if defined(USE_IARMBUS) || defined(USE_IARM_BUS)
-            InitializeIARM();
+            //InitializeIARM();
 #endif /* defined(USE_IARMBUS) || defined(USE_IARM_BUS) */
 
             /* On Success; return empty to indicate no error text. */
@@ -582,8 +582,8 @@ namespace WPEFramework {
         void MaintenanceManager::Deinitialize(PluginHost::IShell* service)
         {
 #if defined(USE_IARMBUS) || defined(USE_IARM_BUS)
-            stopMaintenanceTasks();
-            DeinitializeIARM();
+            //stopMaintenanceTasks();
+            //DeinitializeIARM();
 #endif /* defined(USE_IARMBUS) || defined(USE_IARM_BUS) */
 
             ASSERT(service == m_service);
