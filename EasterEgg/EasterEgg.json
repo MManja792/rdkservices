@@ -1,0 +1,98 @@
+{
+    "$schema": "https://raw.githubusercontent.com/rdkcentral/Thunder/master/Tools/JsonGenerator/schemas/interface.schema.json",
+    "jsonrpc": "2.0",
+    "info": {
+        "title": "EasterEgg API",
+        "class": "EasterEgg",
+        "description": "The `EasterEgg` plugin is used to start the factory application and the resident application."
+    },
+    "definitions": {
+        "result": {
+            "type":"object",
+            "properties": {
+                "success": {
+                    "$ref": "#/definitions/success"
+                }
+            },
+            "required": [
+                "success"
+            ]
+        },
+        "success": {
+            "summary": "Whether the request succeeded",
+            "type": "boolean",
+            "example": true
+        }
+    },
+    "methods": {
+        "launchFactoryApp": {
+            "summary": "Launches the factory application and sets the `FactoryMode` and `AllowExit` parameters to `true` in the persistent store configuration.\n \n### Events \n\n No Events.",
+            "params": {
+                "type": "object",
+                "properties": {
+                    "startup": {
+                        "summary": "Verify the factory application aging status in the persistent store before launching",
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "resetagingtime": {
+                        "summary": "Sets the factory application aging time to 0 in the persistent store configuration before launching",
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "nokillresapp": {
+                        "summary": "Whether to destroy the resident application before launching the factory application.",
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "required": []
+            },
+            "result": {
+                "$ref": "#/definitions/result"
+            }
+        },
+        "launchResidentApp": {
+            "summary": "Launches the resident application and sets the `FactoryMode` parameter to `false` in the persistent store configuration. This method attempts to exit the factory application before launching the resident application.\n \n### Events \n| Event | Description | \n| :----------- | :----------- |\n| `onWillDestroy`| Triggered when the factory application is forcibly closed |",
+            "events": [
+                "onWillDestroy"
+            ],
+            "result": {
+                "$ref": "#/definitions/result"
+            }
+        },
+        "toggleFactoryApp": {
+            "summary": "Launches the resident application if the factory application is currently running. The factory application is launched if it is not currently running.\n \n### Events \n\n No Events.",
+            "result": {
+                "$ref": "#/definitions/result"
+            }
+        },
+        "launchFactoryAppShortcut":{
+            "summary": "Launches the factory application shortcut using the `ToFacFlag` value that is in the persistent store configuration.\n \n### Events \n\n No Events.",
+            "result": {
+                "$ref": "#/definitions/result"
+            }
+        },
+        "showEasterEggsMenu": {
+            "summary": "Launches the EasterEggs menu application. If the menu application cannot be launched, a `message` parameter is returned with the response and includes the error message.\n \n### Events \n\n No Events.",
+            "result": {
+                "$ref": "#/definitions/result"
+            }
+        }      
+    },
+    "events": {
+        "onWillDestroy": {
+            "summary": "Triggered when the factory application is forcibly closed",
+            "params": {
+                "type": "object",
+                "properties": {
+                    "callsign":{
+                        "summary": "The callsign of the factory application",
+                        "type": "string",
+                        "example": "factoryapp"
+                    }
+                }
+            }
+        }
+    }
+}

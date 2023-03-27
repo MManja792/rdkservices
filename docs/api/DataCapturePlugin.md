@@ -2,7 +2,7 @@
 <a name="DataCapture_Plugin"></a>
 # DataCapture Plugin
 
-**Version: [1.0.1](https://github.com/rdkcentral/rdkservices/blob/main/DataCapture/CHANGELOG.md)**
+**Version: [1.0.2](https://github.com/rdkcentral/rdkservices/blob/main/DataCapture/CHANGELOG.md)**
 
 A org.rdk.dataCapture plugin for Thunder framework.
 
@@ -113,7 +113,7 @@ No Events
 Requests the audio driver to capture an audio sample from the specified stream and then delivers the stream sample to a specified URL.  
 Supported streams:  
 * `primary` - The stream going to the analog output and the stream included in the HDMI output. This is the only stream that is valid when the request is made through a voice request.  
-* `secondary` - The stream is captured from a secondary decoder. A potential use case includes initiating a capture from a screen overlay where the user has a choice between primary or secondary audio (or the type of audio output to which the user listens â€“ TV or Bluetooth).
+* `secondary` - The stream is captured from a secondary decoder. A potential use case includes initiating a capture from a screen overlay where the user has a choice between primary or secondary audio (or the type of audio output to which the user listens – TV or Bluetooth).
 
 ### Events
 

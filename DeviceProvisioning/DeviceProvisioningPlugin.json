@@ -1,0 +1,13 @@
+{
+    "$schema": "https://raw.githubusercontent.com/rdkcentral/Thunder/master/Tools/JsonGenerator/schemas/plugin.schema.json",
+    "info": {
+      "title": "DeviceProvisioning Plugin",
+      "callsign": "com.comcast.DeviceProvisioning",
+      "locator": "libWPEFrameworkDeviceProvisioning.so",
+      "status": "production",
+      "description": "The `DeviceProvisioning` plugin is used to determine the status of the provisioned objects that are stored on the device. A device may contain one or more provision types depending upon the types of security APIs that are enabled on the device.  This API allows the client to check on all provision types and specifically provision or reprovision a given provision type."
+    },
+    "interface": {
+      "$ref": "DeviceProvisioning.json#"
+    }
+}

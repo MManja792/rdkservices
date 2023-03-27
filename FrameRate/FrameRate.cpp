@@ -102,7 +102,7 @@ namespace WPEFramework
 
 	const string FrameRate::Initialize(PluginHost::IShell * /* service */)
         {
-		    InitializeIARM();
+		InitializeIARM();
                 return "";
         }
 

@@ -1,0 +1,218 @@
+{
+    "$schema": "https://raw.githubusercontent.com/rdkcentral/Thunder/master/Tools/JsonGenerator/schemas/interface.schema.json",
+    "jsonrpc": "2.0",
+    "info": {
+        "title": "DeviceProvisioning API", 
+        "class": "DeviceProvisioning", 
+        "description": "The `DeviceProvisioning` plugin is used to determine the status of the provisioned objects that are stored on the device. A device may contain one or more provision types depending upon the types of security APIs that are enabled on the device.  This API allows the client to check on all provision types and specifically provision or reprovision a given provision type."
+    },
+    "definitions": {
+        "provisionType": {
+            "summary": "The provision type",
+            "type": "string",
+            "enum": [
+                "HARDWARE",
+                "CRYPTANIUM"
+            ]
+        },
+        "provisionTypes": {
+            "summary": "Information for each provision type that is supported on the device",
+            "type":"array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "provisionType": {
+                        "$ref": "#/definitions/provisionType"
+                    },
+                    "provisionKind": {
+                        "summary": "The provision kind",
+                        "type": "string",
+                        "example": "RT.2"
+                    },
+                    "state": {
+                        "summary": "The provision state",
+                        "type": "string",
+                        "enum": [
+                            "NOT_PROVISIONED",
+                            "IN_PROGRESS",
+                            "PROVISIONED",
+                            "CORRUPTED"
+                        ],
+                        "example": "PROVISIONED"
+                    },
+                    "reason": {
+                        "summary": "The provision reason",
+                        "type": "string",
+                        "example": "RT_GOOD_ACTIVE_PREFETCH_CREDS. Active device and NOT NEW prefetch creds are valid"
+                    }
+                },
+                "required": [
+                    "provisionType",
+                    "provisionKind",
+                    "state",
+                    "reason"
+                ]
+            }
+        },
+        "result": {
+            "type":"object",
+            "properties": {
+                "success": {
+                    "$ref": "#/definitions/success"
+                }
+            },
+            "required": [
+                "success"
+            ]
+        },
+        "success": {
+            "summary": "Whether the request succeeded",
+            "type": "boolean",
+            "example": true
+        }
+    },
+    "methods": {
+        "getApiVersionNumber": {
+            "summary": "Gets the current API version number.\n \n### Events \n\n No Events.",
+            "result": {
+                "type": "object",
+                "properties": {
+                    "version": {
+                        "summary": "The current API version number",
+                        "type": "string",
+                        "example": "1"
+                    },
+                    "success": {
+                        "$ref": "#/definitions/success"
+                    }
+                },
+                "required":[
+                    "version",
+                    "success"
+                ]
+            }
+        },
+        "getNetflixESN": {
+            "summary": "(Version 2) Returns the Netflix Electronic Serial Number (ESN). In order to get the Netflix ESN, the device must be provisioned. If the device is not provisioned or if there is an error retrieving the ESN, then the ESN parameter must be empty.\n \n### Events \n\n No Events.",
+            "result": {
+                "type": "object",
+                "properties": {
+                    "esn": {
+                        "summary": "The Netflix ESN",
+                        "type": "string",
+                        "example": "CMCSTX100000000000000000000000000001000000"
+                    },
+                    "success": {
+                        "$ref": "#/definitions/success"
+                    },
+                    "error": {
+                        "summary": "A human readable string that states the cause of the failure. The `success` parameter in this case must be `false`.",
+                        "type": "string",
+                        "example": ""
+                    }
+                },
+                "required":[
+                    "esn",
+                    "success"
+                ]
+            }
+        },
+        "getSOCId": {
+            "summary": "(Version 3) Returns the SOC ID based on the provisioning type.\n \n### Events \n\n No Events.",
+            "result": {
+                "type": "object",
+                "properties": {
+                    "socid": {
+                        "summary": "The SOC ID. If the hardware `provisionType` is supported on the device, then the SOC ID is the Chip ID of the SOC on the device",
+                        "type": "string",
+                        "example": "001b08011000082a"
+                    },
+                    "success": {
+                        "$ref": "#/definitions/success"
+                    }
+                },
+                "required":[
+                    "socid",
+                    "success"
+                ]
+            }
+        },
+        "notifyProvisioning":{
+            "deprecated" : true,
+            "summary": "(Version 2) Notify the valid provisionType of the provisioned device.\n \n### Events \n\n No Events.",            "params": {
+                "type": "object",
+                "properties": {
+                    "provisionType": {
+                        "$ref": "#/definitions/provisionType"
+                    }
+                },
+                "required": [
+                    "provisionType"
+                ]
+            },
+            "result":{
+                "type":"object",
+                "properties":{
+                    "success": {
+                        "$ref": "#/definitions/success"
+                    }
+                },
+                "required": [
+                    "success"
+                ]
+            }
+        },
+        "provisionCheck": {
+            "summary": "Checks the provisioning condition of the selected device.\n \n### Events \n\n No Events.",
+            "result": {
+                "type": "object",
+                "properties": {
+                    "provisionTypes": {
+                        "$ref": "#/definitions/provisionTypes"
+                    },
+                    "success": {
+                        "$ref": "#/definitions/success"
+                    }
+                },
+                "required": [
+                    "provisionTypes",
+                    "success"
+                ]
+            }
+        },
+        "reprovision": {
+            "summary": "Forces the device to reprovision.\n \n### Events \n\n No Events.",
+            "params": {
+                "type": "object",
+                "properties": {
+                    "provisionType": {
+                        "$ref": "#/definitions/provisionType"
+                    },
+                    "fetchCredentials": {
+                        "summary": "fetch the credentials",
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "required": [
+                    "provisionType"
+                ]
+            },
+            "result": {
+                "type": "object",
+                "properties": {
+                    "provisionTypes": {
+                        "$ref": "#/definitions/provisionTypes"
+                    },
+                    "success": {
+                        "$ref": "#/definitions/success"
+                    }
+                },
+                "required": [
+                    "provisionTypes",
+                    "success"
+                ]
+            }
+        }
+    }
+}

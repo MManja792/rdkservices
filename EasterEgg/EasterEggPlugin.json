@@ -1,0 +1,14 @@
+{
+    "$schema": "https://raw.githubusercontent.com/rdkcentral/Thunder/master/Tools/JsonGenerator/schemas/plugin.schema.json",
+    "info": {
+      "title": "EasterEgg Plugin",
+      "callsign": "org.rdk.EasterEgg",
+      "locator": "libWPEFrameworkEasterEgg.so",
+      "status": "production",
+      "description": "The `EasterEgg` plugin is used to start the factory application and the resident application.",
+      "version": "1.0"
+    },
+    "interface": {
+      "$ref": "EasterEgg.json#"
+    }
+}
