@@ -175,7 +175,6 @@ namespace WPEFramework
         : PluginHost::JSONRPC(),cecEnableStatus(false),smConnection(nullptr)
         {
             HdmiCec::_instance = this;
-            InitializeIARM();
 
             Register(HDMICEC_METHOD_SET_ENABLED, &HdmiCec::setEnabledWrapper, this);
             Register(HDMICEC_METHOD_GET_ENABLED, &HdmiCec::getEnabledWrapper, this);
@@ -204,7 +203,14 @@ namespace WPEFramework
         HdmiCec::~HdmiCec()
         {
         }
+        const std::string  HdmiCec::Initialize(PluginHost::IShell* /* service */)
+	{
+		HdmiCec::_instance = this;
 
+		InitializeIARM();
+		return(std::string());
+
+	}
         void HdmiCec::Deinitialize(PluginHost::IShell* /* service */)
         {
             isDeviceActiveSource = false;
@@ -528,13 +534,23 @@ namespace WPEFramework
 
                 m_updateThreadExit = true;
                 //Trigger codition to exit poll loop
+                pthread_mutex_lock(&(_instance->m_lockUpdate)); //Join mutex lock to wait until thread is in its wait condition
                 pthread_cond_signal(&(_instance->m_condSigUpdate));
+                pthread_mutex_unlock(&(_instance->m_lockUpdate));
+                if (m_UpdateThread.get().joinable()) {//Join thread to make sure it's deleted before moving on.
+                    m_UpdateThread.get().join();
+                }
                 LOGWARN("Deleted update Thread %p", smConnection );
 
 
                 m_pollThreadExit = true;
                 //Trigger codition to exit poll loop
+                pthread_mutex_lock(&(_instance->m_lock)); //Join mutex lock to wait until thread is in its wait condition
                 pthread_cond_signal(&(_instance->m_condSig));
+                pthread_mutex_unlock(&(_instance->m_lock));
+                if (m_pollThread.get().joinable()) {//Join thread to make sure it's deleted before moving on.
+                    m_pollThread.get().join();
+                }
                 LOGWARN("Deleted Thread %p", smConnection );
                 //Clear cec device cache.
                 removeAllCecDevices();
@@ -807,7 +823,7 @@ namespace WPEFramework
             } else {
                 LOGWARN("HdmiCec::_instance NULL Cec msg decoding failed.");
             }
-            LOGINFO("recvMessage :%d  :%s ",bufbase64.length(),bufbase64.c_str());
+            LOGINFO("recvMessage :%d  :%s ",(int)bufbase64.length(),bufbase64.c_str());
             (const_cast<HdmiCec*>(this))->onMessage(bufbase64.c_str());
             return;
         }

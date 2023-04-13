@@ -29,6 +29,11 @@ if(COMCAST_CONFIG)
 endif()
 
 option(PLUGIN_OCICONTAINER "Include OCIContainer plugin" OFF)
+
+if(RDK_SERVICES_TEST)
+    include(tests.cmake)
+endif()
+
 option(PLUGIN_RUSTBRIDGE "Include RustBridge plugin" OFF)
 
 # Library installation section
@@ -36,8 +41,6 @@ string(TOLOWER ${NAMESPACE} STORAGE_DIRECTORY)
 
 # for writing pc and config files
 include(CmakeHelperFunctions)
-
-get_directory_property(SEVICES_DEFINES COMPILE_DEFINITIONS)
 
 if(PLUGIN_PACKAGER)
     add_subdirectory(Packager)
@@ -61,6 +64,10 @@ endif()
 
 if(PLUGIN_VOICECONTROL)
     add_subdirectory(VoiceControl)
+endif()
+
+if(PLUGIN_REMOTECONTROL)
+	add_subdirectory(RemoteControl)
 endif()
 
 if(PLUGIN_RUSTBRIDGE)
@@ -107,7 +114,7 @@ if(PLUGIN_DATACAPTURE)
     add_subdirectory(DataCapture)
 endif()
 
-if(SEVICES_DEFINES MATCHES "HAS_FRONT_PANEL")
+if(HAS_FRONT_PANEL)
     add_subdirectory(FrontPanel)
 endif()
 
@@ -346,6 +353,10 @@ endif()
 
 if(PLUGIN_UNIFIEDCASMANAGEMENT)
     add_subdirectory(UnifiedCASManagement)
+endif()
+
+if(PLUGIN_LEDCONTROL)
+    add_subdirectory(LEDControl)
 endif()
 
 if(WPEFRAMEWORK_CREATE_IPKG_TARGETS)
