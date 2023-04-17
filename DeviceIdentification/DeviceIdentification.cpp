@@ -154,10 +154,10 @@ namespace Plugin {
     string DeviceIdentification::GetDeviceId() const
     {
         string result;
-        TRACE(Trace::Information, (_T("DeviceIdentification::GetDeviceId . Line: %d"), __LINE__));
+        LOGWARN("DeviceIdentification::GetDeviceId . Line: %d", __LINE__);
 #ifndef DISABLE_DEVICEID_CONTROL
         ASSERT(_identifier != nullptr);
-        TRACE(Trace::Information, (_T("DeviceIdentification::GetDeviceId . Line: %d"), __LINE__));
+        LOGWARN("DeviceIdentification::GetDeviceId . Line: %d", __LINE__);
 
         if (_identifier != nullptr) {
             uint8_t myBuffer[64];
@@ -168,9 +168,9 @@ namespace Plugin {
                 result = Core::SystemInfo::Instance().Id(myBuffer, ~0);
             }
         }
-        TRACE(Trace::Information, (_T("DeviceIdentification::GetDeviceId . Line: %d - DeviceId = %s"), __LINE__,result));
+        LOGWARN("DeviceIdentification::GetDeviceId . Line: %d - DeviceId = %s", __LINE__, result);
 #else
-        TRACE(Trace::Information, (_T("DeviceIdentification::GetDeviceId . Line: %d "), __LINE__));
+        LOGWARN("DeviceIdentification::GetDeviceId . Line: %d", __LINE__);
         // extract DeviceId set by Thunder
         if (_service->SubSystems()->IsActive(PluginHost::ISubSystem::IDENTIFIER) == true) {
 
@@ -184,7 +184,7 @@ namespace Plugin {
                 }
                 identifier->Release();
             }
-            TRACE(Trace::Information, (_T("DeviceIdentification::GetDeviceId . Line: %d - DeviceId = %s"), __LINE__,result));
+            LOGWARN("DeviceIdentification::GetDeviceId . Line: %d - DeviceId = %s", __LINE__, result);
          }
 #endif
         return result;
