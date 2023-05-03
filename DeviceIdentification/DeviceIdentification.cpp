@@ -22,7 +22,8 @@
 #include <interfaces/IConfiguration.h>
 #include <fstream>
 
-#define DIDFILE                     "/opt/secure/persistent/System/DID.txt"
+#define DIDFILE        "/opt/secure/persistent/System/DID.txt"
+using namespace std;
 
 #define API_VERSION_NUMBER_MAJOR 1
 #define API_VERSION_NUMBER_MINOR 0
