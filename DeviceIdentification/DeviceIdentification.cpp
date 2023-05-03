@@ -20,6 +20,7 @@
 #include "DeviceIdentification.h"
 #include "IdentityProvider.h"
 #include <interfaces/IConfiguration.h>
+#include <fstream>
 
 #define DIDFILE                     "/opt/secure/persistent/System/DID.txt"
 
