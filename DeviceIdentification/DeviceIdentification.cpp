@@ -20,8 +20,8 @@
 #include "DeviceIdentification.h"
 #include "IdentityProvider.h"
 #include <interfaces/IConfiguration.h>
-#include "UtilsLogging.h"
 
+#define DIDFILE                     "/opt/secure/persistent/System/DID.txt"
 
 #define API_VERSION_NUMBER_MAJOR 1
 #define API_VERSION_NUMBER_MINOR 0
@@ -155,11 +155,18 @@ namespace Plugin {
 
     string DeviceIdentification::GetDeviceId() const
     {
+        ofstream outdata(DIDFILE);
+        if(outdata){
+			outdata << "DeviceIdentification::GetDeviceId . Line: " << __LINE__ << "\n";
+		}
         string result;
-        LOGWARN("DeviceIdentification::GetDeviceId . Line: %d", __LINE__);
+        
 #ifndef DISABLE_DEVICEID_CONTROL
         ASSERT(_identifier != nullptr);
-        LOGWARN("DeviceIdentification::GetDeviceId . Line: %d", __LINE__);
+        if(outdata){
+			outdata << "DeviceIdentification::GetDeviceId - DISABLE_DEVICEID_CONTROL- Line: " << __LINE__ << "\n";
+		}
+        
         if (_identifier != nullptr) {
             uint8_t myBuffer[64];
 
@@ -169,9 +176,13 @@ namespace Plugin {
                 result = Core::SystemInfo::Instance().Id(myBuffer, ~0);
             }
         }
-        LOGWARN("DeviceIdentification::GetDeviceId . Line: %d - DeviceId = %s", __LINE__, result);
+        if(outdata){
+			outdata << "DeviceIdentification::GetDeviceId . Line: " << __LINE__ << " Result: "<<result << "\n";
+		}
 #else
-        LOGWARN("DeviceIdentification::GetDeviceId . Line: %d", __LINE__);
+        if(outdata){
+			outdata << "DeviceIdentification::GetDeviceId . Line: " << __LINE__ << "\n";
+		}
         // extract DeviceId set by Thunder
         if (_service->SubSystems()->IsActive(PluginHost::ISubSystem::IDENTIFIER) == true) {
 
@@ -185,7 +196,9 @@ namespace Plugin {
                 }
                 identifier->Release();
             }
-            LOGWARN("DeviceIdentification::GetDeviceId . Line: %d - DeviceId = %s", __LINE__, result);
+            if(outdata){
+			outdata << "DeviceIdentification::GetDeviceId . Line: " << __LINE__ << " Result: "<<result << "\n";
+		}
          }
 #endif
         return result;

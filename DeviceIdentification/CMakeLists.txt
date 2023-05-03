@@ -39,7 +39,6 @@ find_package(MFRFWLibs QUIET)
 
 find_package(${NAMESPACE}Plugins REQUIRED)
 find_package(CompileSettingsDebug CONFIG REQUIRED)
-target_include_directories(${MODULE_NAME} PRIVATE ../helpers)
 
 add_library(${MODULE_NAME} SHARED
     DeviceIdentification.cpp
