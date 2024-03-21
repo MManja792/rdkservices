@@ -56,6 +56,19 @@ namespace Plugin {
 
     uint32_t PersistentStore::endpoint_setValue(const SetValueParamsData& params, DeleteKeyResultInfo& response)
     {
+         if (!parameters.HasLabel("namespace") ||
+            !parameters.HasLabel("key") ||
+            !parameters.HasLabel("value")) {
+                response["error"] = "params missing";
+            }
+        else {
+        string value = parameters["value"].String();
+
+            if(value.legth() > 3000){
+                response["error"] = "Value is to long!";
+                return result;
+            }
+
         auto result = _store2->SetValue(
             Exchange::IStore2::ScopeType(params.Scope.Value()),
             params.Namespace.Value(),
@@ -63,7 +76,8 @@ namespace Plugin {
             params.Value.Value(),
             params.Ttl.Value());
         if (result == Core::ERROR_NONE) {
-            response.Success = true;
+            sresponse.Success = true;
+            }
         }
 
         return result;
