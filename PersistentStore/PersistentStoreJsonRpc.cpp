@@ -58,7 +58,7 @@ namespace Plugin {
     {
         string value = params.Value.Value();
 
-            if(value.legth() > 3000){
+            if(value.length() > 3000){
                 response.Success = false;
                 return Core::ERROR_GENERAL;
             }
