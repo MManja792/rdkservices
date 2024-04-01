@@ -56,6 +56,11 @@ namespace Plugin {
 
     uint32_t PersistentStore::endpoint_setValue(const SetValueParamsData& params, DeleteKeyResultInfo& response)
     {
+	    string value = params.Value.Value();
+	    if(value.length() > 3000){
+                response.Success = false;
+                return Core::ERROR_GENERAL;
+            }
         auto result = _store2->SetValue(
             Exchange::IStore2::ScopeType(params.Scope.Value()),
             params.Namespace.Value(),
