@@ -512,6 +512,11 @@ namespace WPEFramework {
         return true;
     }
 
+    ConnectivityMonitor::~ConnectivityMonitor() {
+                    LOGWARN("~ConnectivityMonitor");
+                    stopContinuousConnectivityMonitoring();
+                }
+
     bool ConnectivityMonitor::isMonitorThreadRunning()
     {
         return threadRunning.load();
@@ -550,6 +555,8 @@ namespace WPEFramework {
 
     bool ConnectivityMonitor::stopContinuousConnectivityMonitoring()
     {
+        LOGWARN("Connectivity monitor stopContinuousConnectivityMonitoring");
+        LOGWARN("isContinuesMonitoringNeeded = %d - threadRunning = %d ",isContinuesMonitoringNeeded,threadRunning );
         if (!isMonitorThreadRunning())
         {
             LOGWARN("Connectivity monitor not running");
