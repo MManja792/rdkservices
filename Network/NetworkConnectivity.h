@@ -117,7 +117,8 @@ namespace WPEFramework {
                 ConnectivityMonitor() : stopFlag(false), threadRunning(false), isContinuesMonitoringNeeded(false)
                 {
                     setConnectivityMonitorEndpoints(getConnectivityDefaultEndpoints());
-                }                
+                }
+                ~ConnectivityMonitor();                
             private:
 
                 std::vector<std::string> getConnectivityMonitorEndpoints();
