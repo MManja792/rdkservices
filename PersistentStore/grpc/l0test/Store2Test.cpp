@@ -24,13 +24,13 @@ using ::testing::IsFalse;
 using ::testing::IsTrue;
 using ::testing::Le;
 using ::testing::NiceMock;
+using ::testing::Return;
 using ::testing::Test;
 using ::WPEFramework::Core::Time;
 using ::WPEFramework::Exchange::IStore2;
 using ::WPEFramework::Plugin::Grpc::Store2;
 
 const auto kUri = "0.0.0.0:50051";
-const auto kTokenCommand = "";
 const auto kValue = "value_1";
 const auto kKey = "key_1";
 const auto kAppId = "app_id_1";
@@ -44,7 +44,7 @@ protected:
     WPEFramework::Core::ProxyType<IStore2> store2;
     AStore2()
         : server(kUri, &service)
-        , store2(WPEFramework::Core::ProxyType<Store2>::Create(kUri, kTokenCommand))
+        , store2(WPEFramework::Core::ProxyType<Store2>::Create(kUri))
     {
     }
 };
@@ -79,6 +79,36 @@ TEST_F(AStore2, GetsValueWithTtl)
     EXPECT_THAT(req.key().scope(), Eq(kScope));
     EXPECT_THAT(v, Eq(kValue));
     EXPECT_THAT(t, Eq(kTtl));
+}
+
+TEST_F(AStore2, DoesNotGetValueWhenResponseHasNoValue)
+{
+    ON_CALL(service, GetValue(_, _, _))
+        .WillByDefault(Return(grpc::Status(grpc::StatusCode::OK, "")));
+
+    string v;
+    uint32_t t;
+    EXPECT_THAT(store2->GetValue(IStore2::ScopeType::ACCOUNT, kAppId, kKey, v, t), Eq(WPEFramework::Core::ERROR_UNKNOWN_KEY));
+}
+
+TEST_F(AStore2, DoesNotGetValueWhenNOT_FOUND)
+{
+    ON_CALL(service, GetValue(_, _, _))
+        .WillByDefault(Return(grpc::Status(grpc::StatusCode::NOT_FOUND, "")));
+
+    string v;
+    uint32_t t;
+    EXPECT_THAT(store2->GetValue(IStore2::ScopeType::ACCOUNT, kAppId, kKey, v, t), Eq(WPEFramework::Core::ERROR_UNKNOWN_KEY));
+}
+
+TEST_F(AStore2, DoesNotGetValueWhenINVALID_ARGUMENT)
+{
+    ON_CALL(service, GetValue(_, _, _))
+        .WillByDefault(Return(grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "")));
+
+    string v;
+    uint32_t t;
+    EXPECT_THAT(store2->GetValue(IStore2::ScopeType::ACCOUNT, kAppId, kKey, v, t), Eq(WPEFramework::Core::ERROR_INVALID_INPUT_LENGTH));
 }
 
 TEST_F(AStore2, GetsValueWithExpireTime)
@@ -135,6 +165,14 @@ TEST_F(AStore2, SetsValueWithTtl)
     EXPECT_THAT(req.value().ttl().seconds(), Eq(kTtl));
 }
 
+TEST_F(AStore2, DoesNotSetValueWhenINVALID_ARGUMENT)
+{
+    ON_CALL(service, UpdateValue(_, _, _))
+        .WillByDefault(Return(grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "")));
+
+    EXPECT_THAT(store2->SetValue(IStore2::ScopeType::ACCOUNT, kAppId, kKey, kValue, kTtl), Eq(WPEFramework::Core::ERROR_INVALID_INPUT_LENGTH));
+}
+
 TEST_F(AStore2, DeletesKey)
 {
     DeleteValueRequest req;
@@ -150,6 +188,14 @@ TEST_F(AStore2, DeletesKey)
     EXPECT_THAT(req.key().key(), Eq(kKey));
     EXPECT_THAT(req.key().app_id(), Eq(kAppId));
     EXPECT_THAT(req.key().scope(), Eq(kScope));
+}
+
+TEST_F(AStore2, DoesNotDeleteKeyWhenINVALID_ARGUMENT)
+{
+    ON_CALL(service, DeleteValue(_, _, _))
+        .WillByDefault(Return(grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "")));
+
+    EXPECT_THAT(store2->DeleteKey(IStore2::ScopeType::ACCOUNT, kAppId, kKey), Eq(WPEFramework::Core::ERROR_INVALID_INPUT_LENGTH));
 }
 
 TEST_F(AStore2, DeletesNamespace)

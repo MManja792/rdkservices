@@ -124,7 +124,7 @@ namespace Plugin {
     {
         RPC::IStringIterator* it;
         auto result = _storeInspector->GetKeys(
-            Exchange::IStore2::ScopeType(params.Scope.Value()),
+            Exchange::IStoreInspector::ScopeType(params.Scope.Value()),
             params.Namespace.Value(),
             it);
         if (result == Core::ERROR_NONE) {
@@ -143,7 +143,7 @@ namespace Plugin {
     {
         RPC::IStringIterator* it;
         auto result = _storeInspector->GetNamespaces(
-            Exchange::IStore2::ScopeType(params.Scope.Value()),
+            Exchange::IStoreInspector::ScopeType(params.Scope.Value()),
             it);
         if (result == Core::ERROR_NONE) {
             string element;
@@ -162,7 +162,7 @@ namespace Plugin {
     {
         Exchange::IStoreInspector::INamespaceSizeIterator* it;
         auto result = _storeInspector->GetStorageSizes(
-            Exchange::IStore2::ScopeType(params.Scope.Value()),
+            Exchange::IStoreInspector::ScopeType(params.Scope.Value()),
             it);
         if (result == Core::ERROR_NONE) {
             JsonObject jsonObject;
@@ -182,7 +182,7 @@ namespace Plugin {
     {
         Exchange::IStoreInspector::INamespaceSizeIterator* it;
         auto result = _storeInspector->GetStorageSizes(
-            Exchange::IStore2::ScopeType(params.Scope.Value()),
+            Exchange::IStoreInspector::ScopeType(params.Scope.Value()),
             it);
         if (result == Core::ERROR_NONE) {
             Exchange::IStoreInspector::NamespaceSize element;
@@ -211,7 +211,7 @@ namespace Plugin {
     {
         uint32_t size;
         auto result = _storeLimit->GetNamespaceStorageLimit(
-            Exchange::IStore2::ScopeType(params.Scope.Value()),
+            Exchange::IStoreLimit::ScopeType(params.Scope.Value()),
             params.Namespace.Value(),
             size);
         if (result == Core::ERROR_NONE) {
@@ -224,7 +224,7 @@ namespace Plugin {
     uint32_t PersistentStore::endpoint_setNamespaceStorageLimit(const SetNamespaceStorageLimitParamsData& params)
     {
         return _storeLimit->SetNamespaceStorageLimit(
-            Exchange::IStore2::ScopeType(params.Scope.Value()),
+            Exchange::IStoreLimit::ScopeType(params.Scope.Value()),
             params.Namespace.Value(),
             params.StorageLimit.Value());
     }

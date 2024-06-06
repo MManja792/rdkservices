@@ -64,6 +64,7 @@ namespace WPEFramework {
             static const string RDKSHELL_METHOD_MOVE_TO_BACK;
             static const string RDKSHELL_METHOD_MOVE_BEHIND;
             static const string RDKSHELL_METHOD_SET_FOCUS;
+	    static const string RDKSHELL_METHOD_GET_FOCUSED;
             static const string RDKSHELL_METHOD_KILL;
             static const string RDKSHELL_METHOD_ADD_KEY_INTERCEPT;
             static const string RDKSHELL_METHOD_ADD_KEY_INTERCEPTS;
@@ -145,6 +146,7 @@ namespace WPEFramework {
             static const string RDKSHELL_METHOD_KEY_REPEAT_CONFIG;
             static const string RDKSHELL_METHOD_GET_GRAPHICS_FRAME_RATE;
             static const string RDKSHELL_METHOD_SET_GRAPHICS_FRAME_RATE;
+            static const string RDKSHELL_METHOD_SET_KEY_INTERCEPTS;
 #ifdef HIBERNATE_SUPPORT_ENABLED
             static const string RDKSHELL_METHOD_HIBERNATE;
             static const string RDKSHELL_METHOD_RESTORE;
@@ -160,6 +162,7 @@ namespace WPEFramework {
             static const string RDKSHELL_EVENT_ON_APP_SUSPENDED;
             static const string RDKSHELL_EVENT_ON_APP_RESUMED;
             static const string RDKSHELL_EVENT_ON_APP_ACTIVATED;
+	    static const string RDKSHELL_EVENT_ON_APP_FOCUSCHANGED;
             static const string RDKSHELL_EVENT_ON_LAUNCHED;
             static const string RDKSHELL_EVENT_ON_SUSPENDED;
             static const string RDKSHELL_EVENT_ON_DESTROYED;
@@ -187,6 +190,7 @@ namespace WPEFramework {
             uint32_t moveToBackWrapper(const JsonObject& parameters, JsonObject& response);
             uint32_t moveBehindWrapper(const JsonObject& parameters, JsonObject& response);
             uint32_t setFocusWrapper(const JsonObject& parameters, JsonObject& response);
+	    uint32_t getFocusedWrapper(const JsonObject& parameters, JsonObject& response);
             uint32_t killWrapper(const JsonObject& parameters, JsonObject& response);
             uint32_t addKeyInterceptWrapper(const JsonObject& parameters, JsonObject& response);
             uint32_t addKeyInterceptsWrapper(const JsonObject& parameters, JsonObject& response);
@@ -269,6 +273,7 @@ namespace WPEFramework {
             uint32_t keyRepeatConfigWrapper(const JsonObject& parameters, JsonObject& response);
             uint32_t getGraphicsFrameRateWrapper(const JsonObject& parameters, JsonObject& response);
             uint32_t setGraphicsFrameRateWrapper(const JsonObject& parameters, JsonObject& response);
+            uint32_t setKeyInterceptsWrapper(const JsonObject& parameters, JsonObject& response);
 #ifdef HIBERNATE_SUPPORT_ENABLED
             uint32_t hibernateWrapper(const JsonObject& parameters, JsonObject& response);
             uint32_t restoreWrapper(const JsonObject& parameters, JsonObject& response);
@@ -282,9 +287,12 @@ namespace WPEFramework {
             bool moveToBack(const string& client);
             bool moveBehind(const string& client, const string& target);
             bool setFocus(const string& client);
+	    bool getFocused(string& client);
             bool kill(const string& client);
             bool addKeyIntercept(const uint32_t& keyCode, const JsonArray& modifiers, const string& client);
             bool addKeyIntercepts(const JsonArray& intercepts);
+            bool setKeyIntercepts(const JsonArray& intercepts);
+            bool setKeyIntercept(const uint32_t& keyCode, const JsonArray& modifiers, const string& client, const bool always);
             bool removeKeyIntercept(const uint32_t& keyCode, const JsonArray& modifiers, const string& client);
             bool addKeyListeners(const string& client, const JsonArray& listeners);
             bool removeKeyListeners(const string& client, const JsonArray& listeners);
@@ -379,6 +387,7 @@ namespace WPEFramework {
                 virtual void onApplicationSuspended(const std::string& client);
                 virtual void onApplicationResumed(const std::string& client);
                 virtual void onApplicationActivated(const std::string& client);
+		virtual void onApplicationFocusChanged(const std::string& client);
                 virtual void onUserInactive(const double minutes);
                 virtual void onDeviceLowRamWarning(const int32_t freeKb, const int32_t availableKb, const int32_t usedSwapKb);
                 virtual void onDeviceCriticallyLowRamWarning(const int32_t freeKb, const int32_t availableKb, const int32_t usedSwapKb);

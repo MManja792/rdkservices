@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Module.h"
-
 #include <interfaces/IStore.h>
 #include <interfaces/IStore2.h>
 #include <interfaces/IStoreCache.h>
@@ -50,7 +49,6 @@ namespace Plugin {
                 Add(_T("maxsize"), &MaxSize);
                 Add(_T("maxvalue"), &MaxValue);
                 Add(_T("limit"), &Limit);
-                Add(_T("tokencommand"), &TokenCommand);
             }
 
         public:
@@ -61,7 +59,6 @@ namespace Plugin {
             Core::JSON::DecUInt64 MaxSize;
             Core::JSON::DecUInt64 MaxValue;
             Core::JSON::DecUInt64 Limit;
-            Core::JSON::String TokenCommand;
         };
 
         class Store2Notification : public Exchange::IStore2::INotification {
@@ -70,15 +67,13 @@ namespace Plugin {
             Store2Notification& operator=(const Store2Notification&) = delete;
 
         public:
-            explicit Store2Notification(PersistentStore* parent)
-                : _parent(*parent)
+            explicit Store2Notification(PersistentStore& parent)
+                : _parent(parent)
             {
             }
             ~Store2Notification() override = default;
 
         public:
-            // IStore2::INotification methods
-
             void ValueChanged(const Exchange::IStore2::ScopeType scope, const string& ns, const string& key, const string& value) override
             {
                 JsonData::PersistentStore::SetValueParamsData params;
@@ -98,185 +93,39 @@ namespace Plugin {
             PersistentStore& _parent;
         };
 
-        // Deprecated
-        class Store : public Exchange::IStore {
+        class RemoteConnectionNotification : public RPC::IRemoteConnection::INotification {
         private:
-            Store(const Store&) = delete;
-            Store& operator=(const Store&) = delete;
-
-        private:
-            class Store2Notification : public Exchange::IStore2::INotification {
-            private:
-                Store2Notification(const Store2Notification&) = delete;
-                Store2Notification& operator=(const Store2Notification&) = delete;
-
-            public:
-                explicit Store2Notification(Store* parent)
-                    : _parent(*parent)
-                {
-                }
-                ~Store2Notification() override = default;
-
-            public:
-                // IStore2::INotification methods
-
-                void ValueChanged(const Exchange::IStore2::ScopeType, const string& ns, const string& key, const string& value) override
-                {
-                    Core::SafeSyncType<Core::CriticalSection> lock(_parent._clientLock);
-
-                    std::list<Exchange::IStore::INotification*>::iterator
-                        index(_parent._clients.begin());
-
-                    while (index != _parent._clients.end()) {
-                        (*index)->ValueChanged(ns, key, value);
-                        index++;
-                    }
-                }
-
-                BEGIN_INTERFACE_MAP(Store2Notification)
-                INTERFACE_ENTRY(Exchange::IStore2::INotification)
-                END_INTERFACE_MAP
-
-            private:
-                Store& _parent;
-            };
+            RemoteConnectionNotification() = delete;
+            RemoteConnectionNotification(const RemoteConnectionNotification&) = delete;
+            RemoteConnectionNotification& operator=(const RemoteConnectionNotification&) = delete;
 
         public:
-            Store(Exchange::IStore2* store2)
-                : _store2(store2)
-                , _store2Sink(this)
+            explicit RemoteConnectionNotification(PersistentStore& parent)
+                : _parent(parent)
             {
-                ASSERT(_store2 != nullptr);
-                _store2->AddRef();
-                _store2->Register(&_store2Sink);
             }
-            ~Store() override
-            {
-                _store2->Unregister(&_store2Sink);
-                _store2->Release();
-            }
+            ~RemoteConnectionNotification() override = default;
 
-        public:
-            // IStore methods
-
-            uint32_t Register(Exchange::IStore::INotification* notification) override
-            {
-                Core::SafeSyncType<Core::CriticalSection> lock(_clientLock);
-
-                ASSERT(std::find(_clients.begin(), _clients.end(), notification) == _clients.end());
-
-                notification->AddRef();
-                _clients.push_back(notification);
-
-                return Core::ERROR_NONE;
-            }
-            uint32_t Unregister(Exchange::IStore::INotification* notification) override
-            {
-                Core::SafeSyncType<Core::CriticalSection> lock(_clientLock);
-
-                std::list<Exchange::IStore::INotification*>::iterator
-                    index(std::find(_clients.begin(), _clients.end(), notification));
-
-                ASSERT(index != _clients.end());
-
-                if (index != _clients.end()) {
-                    notification->Release();
-                    _clients.erase(index);
-                }
-
-                return Core::ERROR_NONE;
-            }
-            uint32_t SetValue(const string& ns, const string& key, const string& value) override
-            {
-                return _store2->SetValue(Exchange::IStore2::ScopeType::DEVICE, ns, key, value, 0);
-            }
-            uint32_t GetValue(const string& ns, const string& key, string& value) override
-            {
-                uint32_t ttl;
-                return _store2->GetValue(Exchange::IStore2::ScopeType::DEVICE, ns, key, value, ttl);
-            }
-            uint32_t DeleteKey(const string& ns, const string& key) override
-            {
-                return _store2->DeleteKey(Exchange::IStore2::ScopeType::DEVICE, ns, key);
-            }
-            uint32_t DeleteNamespace(const string& ns) override
-            {
-                return _store2->DeleteNamespace(Exchange::IStore2::ScopeType::DEVICE, ns);
-            }
-
-            BEGIN_INTERFACE_MAP(Store)
-            INTERFACE_ENTRY(Exchange::IStore)
+            BEGIN_INTERFACE_MAP(RemoteConnectionNotification)
+            INTERFACE_ENTRY(RPC::IRemoteConnection::INotification)
             END_INTERFACE_MAP
 
-        private:
-            Exchange::IStore2* _store2;
-            std::list<Exchange::IStore::INotification*> _clients;
-            Core::CriticalSection _clientLock;
-            Core::Sink<Store2Notification> _store2Sink;
-        };
-
-        class Store2 : public Exchange::IStore2 {
-        private:
-            Store2(const Store2&) = delete;
-            Store2& operator=(const Store2&) = delete;
-
-        public:
-            typedef std::map<ScopeType, Exchange::IStore2*> ScopeMapType;
-
-            Store2(const ScopeMapType& map)
-                : _scopeMap(map)
+            void Activated(RPC::IRemoteConnection*) override
             {
-                for (auto const& x : _scopeMap) {
-                    x.second->AddRef();
+            }
+            void Deactivated(RPC::IRemoteConnection* connection) override
+            {
+                if (connection->Id() == _parent._connectionId) {
+                    ASSERT(_parent._service != nullptr);
+                    Core::IWorkerPool::Instance().Schedule(
+                        Core::Time::Now(),
+                        PluginHost::IShell::Job::Create(
+                            _parent._service, PluginHost::IShell::DEACTIVATED, PluginHost::IShell::FAILURE));
                 }
             }
-            ~Store2() override
-            {
-                for (auto const& x : _scopeMap) {
-                    x.second->Release();
-                }
-            }
-
-        public:
-            // IStore2 methods
-
-            uint32_t Register(Exchange::IStore2::INotification* notification) override
-            {
-                for (auto const& x : _scopeMap) {
-                    x.second->Register(notification);
-                }
-                return Core::ERROR_NONE;
-            }
-            uint32_t Unregister(Exchange::IStore2::INotification* notification) override
-            {
-                for (auto const& x : _scopeMap) {
-                    x.second->Unregister(notification);
-                }
-                return Core::ERROR_NONE;
-            }
-            uint32_t SetValue(const ScopeType scope, const string& ns, const string& key, const string& value, const uint32_t ttl) override
-            {
-                return _scopeMap.at(scope)->SetValue(scope, ns, key, value, ttl);
-            }
-            uint32_t GetValue(const ScopeType scope, const string& ns, const string& key, string& value, uint32_t& ttl) override
-            {
-                return _scopeMap.at(scope)->GetValue(scope, ns, key, value, ttl);
-            }
-            uint32_t DeleteKey(const ScopeType scope, const string& ns, const string& key) override
-            {
-                return _scopeMap.at(scope)->DeleteKey(scope, ns, key);
-            }
-            uint32_t DeleteNamespace(const ScopeType scope, const string& ns) override
-            {
-                return _scopeMap.at(scope)->DeleteNamespace(scope, ns);
-            }
-
-            BEGIN_INTERFACE_MAP(Store2)
-            INTERFACE_ENTRY(Exchange::IStore2)
-            END_INTERFACE_MAP
 
         private:
-            ScopeMapType _scopeMap;
+            PersistentStore& _parent;
         };
 
     private:
@@ -286,12 +135,15 @@ namespace Plugin {
     public:
         PersistentStore()
             : PluginHost::JSONRPC()
+            , _service(nullptr)
+            , _connectionId(0)
             , _store(nullptr)
             , _store2(nullptr)
             , _storeCache(nullptr)
             , _storeInspector(nullptr)
             , _storeLimit(nullptr)
-            , _store2Sink(this)
+            , _store2Sink(*this)
+            , _notification(*this)
         {
             RegisterAll();
         }
@@ -300,7 +152,6 @@ namespace Plugin {
             UnregisterAll();
         }
 
-        // Build QueryInterface implementation, specifying all possible interfaces to be returned.
         BEGIN_INTERFACE_MAP(PersistentStore)
         INTERFACE_ENTRY(PluginHost::IPlugin)
         INTERFACE_ENTRY(PluginHost::IDispatcher)
@@ -312,15 +163,11 @@ namespace Plugin {
         END_INTERFACE_MAP
 
     public:
-        //   IPlugin methods
-        // -------------------------------------------------------------------------------------------------------
         const string Initialize(PluginHost::IShell* service) override;
         void Deinitialize(PluginHost::IShell* service) override;
         string Information() const override;
 
     private:
-        // JSON RPC
-
         void RegisterAll();
         void UnregisterAll();
 
@@ -343,12 +190,15 @@ namespace Plugin {
 
     private:
         Config _config;
-        Exchange::IStore* _store; // Deprecated
+        PluginHost::IShell* _service;
+        uint32_t _connectionId;
+        Exchange::IStore* _store;
         Exchange::IStore2* _store2;
         Exchange::IStoreCache* _storeCache;
         Exchange::IStoreInspector* _storeInspector;
         Exchange::IStoreLimit* _storeLimit;
         Core::Sink<Store2Notification> _store2Sink;
+        Core::Sink<RemoteConnectionNotification> _notification;
     };
 
 } // namespace Plugin

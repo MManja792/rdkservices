@@ -19,6 +19,7 @@ set(PLUGIN_NAME DataCapture)
 set(MODULE_NAME ${NAMESPACE}${PLUGIN_NAME})
 
 set(PLUGIN_DATACAPTURE_STARTUPORDER "" CACHE STRING "To configure startup order of DataCapture plugin")
+set(PLUGIN_DATACAPTURE_AUTOSTART false CACHE STRING "To automatically start DataCapture plugin.")
 
 find_package(${NAMESPACE}Plugins REQUIRED)
 
@@ -31,7 +32,7 @@ set_target_properties(${MODULE_NAME} PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES)
 
-if (NOT RDK_SERVICES_TEST)
+if (NOT RDK_SERVICES_L1_TEST)
     target_compile_options(${MODULE_NAME} PRIVATE -Wno-error)
 endif ()
 

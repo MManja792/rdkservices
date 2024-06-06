@@ -39,15 +39,12 @@ namespace Plugin {
 
         public:
             Store2()
-                : Store2(
-                      getenv(URI_ENV),
-                      getenv(TOKEN_COMMAND_ENV))
+                : Store2(getenv(URI_ENV))
             {
             }
-            Store2(const string& uri, const string& tokenCommand)
+            Store2(const string& uri)
                 : IStore2()
                 , _uri(uri)
-                , _tokenCommand(tokenCommand)
             {
                 Open();
             }
@@ -88,29 +85,38 @@ namespace Plugin {
                         result += buffer;
                     }
                     pclose(pipe);
+                    result.erase(result.find_last_not_of(" \n\r\t") + 1);
                 }
                 return result;
             }
             string GetToken() const
             {
-                class Authorization : public Core::JSON::Container {
-                public:
-                    Authorization()
-                        : Core::JSON::Container()
-                        , Expires(0)
-                        , Received(0)
-                    {
-                        Add(_T("token"), &Token);
-                        Add(_T("expires"), &Expires);
-                        Add(_T("received"), &Received);
-                    }
-                    Core::JSON::String Token;
-                    Core::JSON::DecUInt64 Expires;
-                    Core::JSON::DecUInt64 Received;
-                };
-                Authorization auth;
-                auth.FromString(ExecuteCmd(_tokenCommand.c_str()));
-                return auth.Token.Value();
+                // TODO remove this
+                return ExecuteCmd("curl -H \"Authorization: Bearer `WPEFrameworkSecurityUtility 2>/dev/null | cut -d '\"' -f 4`\" -s -d '{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"org.rdk.AuthService.getServiceAccessToken\"}' http://127.0.0.1:9998/jsonrpc | cut -d '\"' -f 14");
+            }
+            static string ReadFromFile(const char* filename)
+            {
+                string result;
+                Core::File file(filename);
+                if (file.Open(true)) {
+                    uint8_t buffer[1024];
+                    auto size = file.Read(buffer, 1024);
+                    result.assign(reinterpret_cast<char*>(buffer), size);
+                    result.erase(result.find_last_not_of(" \n\r\t") + 1);
+                }
+                return result;
+            }
+            string GetPartnerId() const
+            {
+                return ReadFromFile("/opt/www/authService/partnerId3.dat");
+            }
+            string GetAccountId() const
+            {
+                return ReadFromFile("/opt/www/authService/said.dat");
+            }
+            string GetDeviceId() const
+            {
+                return ReadFromFile("/opt/www/authService/xdeviceid.dat");
             }
 
         public:
@@ -153,6 +159,9 @@ namespace Plugin {
                     context.AddMetadata("authorization", "Bearer " + GetToken());
                 }
                 ::distp::gateway::secure_storage::v1::UpdateValueRequest request;
+                request.set_partner_id(GetPartnerId());
+                request.set_account_id(GetAccountId());
+                request.set_device_id(GetDeviceId());
                 auto v = new ::distp::gateway::secure_storage::v1::Value();
                 v->set_value(value);
                 if (ttl != 0) {
@@ -194,6 +203,9 @@ namespace Plugin {
                     context.AddMetadata("authorization", "Bearer " + GetToken());
                 }
                 ::distp::gateway::secure_storage::v1::GetValueRequest request;
+                request.set_partner_id(GetPartnerId());
+                request.set_account_id(GetAccountId());
+                request.set_device_id(GetDeviceId());
                 auto k = new ::distp::gateway::secure_storage::v1::Key();
                 k->set_app_id(ns);
                 k->set_key(key);
@@ -229,6 +241,8 @@ namespace Plugin {
                     OnError(__FUNCTION__, status);
                     if (status.error_code() == grpc::StatusCode::INVALID_ARGUMENT) {
                         result = Core::ERROR_INVALID_INPUT_LENGTH;
+                    } else if (status.error_code() == grpc::StatusCode::NOT_FOUND) {
+                        result = Core::ERROR_UNKNOWN_KEY;
                     } else {
                         result = Core::ERROR_GENERAL;
                     }
@@ -247,6 +261,9 @@ namespace Plugin {
                     context.AddMetadata("authorization", "Bearer " + GetToken());
                 }
                 ::distp::gateway::secure_storage::v1::DeleteValueRequest request;
+                request.set_partner_id(GetPartnerId());
+                request.set_account_id(GetAccountId());
+                request.set_device_id(GetDeviceId());
                 auto k = new ::distp::gateway::secure_storage::v1::Key();
                 k->set_app_id(ns);
                 k->set_key(key);
@@ -279,6 +296,9 @@ namespace Plugin {
                     context.AddMetadata("authorization", "Bearer " + GetToken());
                 }
                 ::distp::gateway::secure_storage::v1::DeleteAllValuesRequest request;
+                request.set_partner_id(GetPartnerId());
+                request.set_account_id(GetAccountId());
+                request.set_device_id(GetDeviceId());
                 request.set_app_id(ns);
                 request.set_scope(::distp::gateway::secure_storage::v1::Scope::SCOPE_ACCOUNT);
                 ::distp::gateway::secure_storage::v1::DeleteAllValuesResponse response;
@@ -307,7 +327,7 @@ namespace Plugin {
                     index(_clients.begin());
 
                 while (index != _clients.end()) {
-                    (*index)->ValueChanged(ScopeType::DEVICE, ns, key, value);
+                    (*index)->ValueChanged(ScopeType::ACCOUNT, ns, key, value);
                     index++;
                 }
             }
@@ -318,7 +338,6 @@ namespace Plugin {
 
         private:
             const string _uri;
-            const string _tokenCommand;
             std::unique_ptr<::distp::gateway::secure_storage::v1::SecureStorageService::Stub> _stub;
             std::list<INotification*> _clients;
             Core::CriticalSection _clientLock;

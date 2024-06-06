@@ -19,6 +19,7 @@ set(PLUGIN_NAME FrameRate)
 set(MODULE_NAME ${NAMESPACE}${PLUGIN_NAME})
 
 set(PLUGIN_FRAMERATE_STARTUPORDER "" CACHE STRING "To configure startup order of FrameRate plugin")
+set(PLUGIN_FRAMERATE_AUTOSTART false CACHE STRING "To automatically start FrameRate plugin.")
 
 find_package(${NAMESPACE}Plugins REQUIRED)
 
@@ -32,7 +33,7 @@ set_target_properties(${MODULE_NAME} PROPERTIES
 
 target_compile_definitions(${MODULE_NAME} PRIVATE MODULE_NAME=Plugin_${PLUGIN_NAME})
 
-if (NOT RDK_SERVICES_TEST)
+if (NOT RDK_SERVICES_L1_TEST)
     target_compile_options(${MODULE_NAME} PRIVATE -Wno-error)
 endif ()
 

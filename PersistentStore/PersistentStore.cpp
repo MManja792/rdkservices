@@ -25,7 +25,7 @@
 
 #define API_VERSION_NUMBER_MAJOR 1
 #define API_VERSION_NUMBER_MINOR 0
-#define API_VERSION_NUMBER_PATCH 8
+#define API_VERSION_NUMBER_PATCH 9
 
 namespace WPEFramework {
 
@@ -51,8 +51,20 @@ namespace Plugin {
         string result;
 
         ASSERT(service != nullptr);
+        ASSERT(_store == nullptr);
+        ASSERT(_store2 == nullptr);
+        ASSERT(_storeCache == nullptr);
+        ASSERT(_storeInspector == nullptr);
+        ASSERT(_storeLimit == nullptr);
+        ASSERT(_service == nullptr);
+        ASSERT(_connectionId == 0);
 
-        auto configLine = service->ConfigLine();
+        SYSLOG(Logging::Startup, (_T("PersistentStore::Initialize: PID=%u"), getpid()));
+
+        _service = service;
+        _service->AddRef();
+
+        auto configLine = _service->ConfigLine();
         _config.FromString(configLine);
 
         {
@@ -90,58 +102,71 @@ namespace Plugin {
         Core::SystemInfo::SetEnvironment(MAXSIZE_ENV, std::to_string(_config.MaxSize.Value()));
         Core::SystemInfo::SetEnvironment(MAXVALUE_ENV, std::to_string(_config.MaxValue.Value()));
         Core::SystemInfo::SetEnvironment(LIMIT_ENV, std::to_string(_config.Limit.Value()));
-        Core::SystemInfo::SetEnvironment(TOKEN_COMMAND_ENV, _config.TokenCommand.Value());
 
-        uint32_t connectionId;
+        _service->Register(&_notification);
 
-        Store2::ScopeMapType initList1;
-        auto deviceStore2 = service->Root<Exchange::IStore2>(connectionId, 2000, _T("SqliteStore2"));
-        if (deviceStore2 != nullptr) {
-            initList1.emplace(Exchange::IStore2::ScopeType::DEVICE, deviceStore2);
+        _store = _service->Root<Exchange::IStore>(_connectionId, RPC::CommunicationTimeOut, _T("PersistentStoreImplementation"));
+        if (_store != nullptr) {
+            _store2 = _store->QueryInterface<Exchange::IStore2>();
+            if (_store2 != nullptr) {
+                _store2->Register(&_store2Sink);
+            }
+            _storeCache = _store->QueryInterface<Exchange::IStoreCache>();
+            _storeInspector = _store->QueryInterface<Exchange::IStoreInspector>();
+            _storeLimit = _store->QueryInterface<Exchange::IStoreLimit>();
+
+            ASSERT(_store2 != nullptr);
+            ASSERT(_storeCache != nullptr);
+            ASSERT(_storeInspector != nullptr);
+            ASSERT(_storeLimit != nullptr);
+        } else {
+            result = _T("Couldn't create implementation instance");
         }
-        auto accountStore2 = service->Root<Exchange::IStore2>(connectionId, 2000, _T("GrpcStore2"));
-        if (accountStore2 != nullptr) {
-            initList1.emplace(Exchange::IStore2::ScopeType::ACCOUNT, accountStore2);
-        }
-        _store2 = Core::Service<Store2>::Create<Exchange::IStore2>(initList1);
-        if (deviceStore2 != nullptr) {
-            deviceStore2->Release();
-        }
-        if (accountStore2 != nullptr) {
-            accountStore2->Release();
-        }
-        _store2->Register(&_store2Sink);
-        _store = Core::Service<Store>::Create<Exchange::IStore>(_store2);
-        _storeCache = service->Root<Exchange::IStoreCache>(connectionId, 2000, _T("SqliteStoreCache"));
-        _storeInspector = service->Root<Exchange::IStoreInspector>(connectionId, 2000, _T("SqliteStoreInspector"));
-        _storeLimit = service->Root<Exchange::IStoreLimit>(connectionId, 2000, _T("SqliteStoreLimit"));
 
         return result;
     }
 
-    void PersistentStore::Deinitialize(PluginHost::IShell* /* service */)
+    void PersistentStore::Deinitialize(PluginHost::IShell* service)
     {
+        ASSERT(_service == service);
+
+        SYSLOG(Logging::Shutdown, (string(_T("DTV::Deinitialize"))));
+
+        _service->Unregister(&_notification);
+
         if (_store != nullptr) {
-            _store->Release();
+            if (_store2 != nullptr) {
+                _store2->Unregister(&_store2Sink);
+                _store2->Release();
+                _store2 = nullptr;
+            }
+            if (_storeCache != nullptr) {
+                _storeCache->Release();
+                _storeCache = nullptr;
+            }
+            if (_storeInspector != nullptr) {
+                _storeInspector->Release();
+                _storeInspector = nullptr;
+            }
+            if (_storeLimit != nullptr) {
+                _storeLimit->Release();
+                _storeLimit = nullptr;
+            }
+
+            auto connection = _service->RemoteConnection(_connectionId);
+            VARIABLE_IS_NOT_USED auto result = _store->Release();
             _store = nullptr;
+            ASSERT(result == Core::ERROR_DESTRUCTION_SUCCEEDED);
+            if (connection != nullptr) {
+                connection->Terminate();
+                connection->Release();
+            }
         }
-        if (_store2 != nullptr) {
-            _store2->Unregister(&_store2Sink);
-            _store2->Release();
-            _store2 = nullptr;
-        }
-        if (_storeCache != nullptr) {
-            _storeCache->Release();
-            _storeCache = nullptr;
-        }
-        if (_storeInspector != nullptr) {
-            _storeInspector->Release();
-            _storeInspector = nullptr;
-        }
-        if (_storeLimit != nullptr) {
-            _storeLimit->Release();
-            _storeLimit = nullptr;
-        }
+
+        _connectionId = 0;
+        _service->Release();
+        _service = nullptr;
+        SYSLOG(Logging::Shutdown, (string(_T("PersistentStore de-initialised"))));
     }
 
     string PersistentStore::Information() const
