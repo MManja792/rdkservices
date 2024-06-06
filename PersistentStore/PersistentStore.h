@@ -201,5 +201,6 @@ namespace Plugin {
         Core::Sink<Store2Notification> _store2Sink;
         Core::Sink<RemoteConnectionNotification> _notification;
 
-}; // namespace Plugin
-   // namespace WPEFramework
+};
+}// namespace Plugin
+}   // namespace WPEFramework
