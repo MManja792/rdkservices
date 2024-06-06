@@ -37,6 +37,7 @@ set(PLUGIN_PERSISTENTSTORE_STARTUPORDER "" CACHE STRING "To configure startup or
 add_library(${MODULE_NAME} SHARED
         PersistentStore.cpp
         PersistentStoreJsonRpc.cpp
+        PersistentStoreImplementation.cpp
         Module.cpp
 )
 
