@@ -126,7 +126,7 @@ namespace Plugin {
         return result;
     }
 
-    void PersistentStore::Deinitialize(PluginHost::IShell* /* service */)
+    void PersistentStore::Deinitialize(PluginHost::IShell*  service)
     {
         ASSERT(_service == service);
 
