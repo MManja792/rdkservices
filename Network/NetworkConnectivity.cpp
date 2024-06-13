@@ -556,7 +556,6 @@ namespace WPEFramework {
     bool ConnectivityMonitor::stopContinuousConnectivityMonitoring()
     {
         LOGWARN("Connectivity monitor stopContinuousConnectivityMonitoring");
-        LOGWARN("isContinuesMonitoringNeeded = %d ",isContinuesMonitoringNeeded);
         if(isContinuesMonitoringNeeded)
             LOGWARN("Connectivity monitor isContinuesMonitoringNeeded true ");
         else
