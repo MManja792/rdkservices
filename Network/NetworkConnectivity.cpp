@@ -456,7 +456,7 @@ namespace WPEFramework {
         {
             isContinuesMonitoringNeeded = true;
             cv_.notify_all();
-            LOGINFO("Connectivity monitor Restarted with %d", timeout.load());
+            LOGWARN("Connectivity monitor Restarted with %d", timeout.load());
             //TODO check still active
         }
         else
@@ -513,7 +513,7 @@ namespace WPEFramework {
     }
 
     ConnectivityMonitor::~ConnectivityMonitor() {
-                    LOGWARN("~ConnectivityMonitor");
+                    LOGWARN("~ConnectivityMonitor  called");
                     stopContinuousConnectivityMonitoring();
                 }
 
@@ -557,6 +557,15 @@ namespace WPEFramework {
     {
         LOGWARN("Connectivity monitor stopContinuousConnectivityMonitoring");
         LOGWARN("isContinuesMonitoringNeeded = %d ",isContinuesMonitoringNeeded);
+        if(isContinuesMonitoringNeeded)
+            LOGWARN("Connectivity monitor isContinuesMonitoringNeeded true ");
+        else
+            LOGWARN("Connectivity monitor isContinuesMonitoringNeeded false ");
+     
+         if(threadRunning)
+            LOGWARN("Connectivity monitor threadRunning true ");
+        else
+            LOGWARN("Connectivity monitor threadRunning false ");
 
         if (!isMonitorThreadRunning())
         {
@@ -570,11 +579,10 @@ namespace WPEFramework {
             thread_.join();
             isContinuesMonitoringNeeded = false;
             threadRunning = false;
-            int temp = (int)threadRunning;
-            LOGINFO("Continuous Connectivity monitor stopped = %d", temp);
+            LOGWARN("Connectivity monitor stopContinuousConnectivityMonitoring -- thread joined");
         }
         else
-            LOGWARN("thread not joinable !");
+            LOGWARN("Connectivity monitor thread not joinable !");
         return true;
     }
 
